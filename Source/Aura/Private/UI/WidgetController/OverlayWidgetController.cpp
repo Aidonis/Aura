@@ -20,6 +20,7 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
 {
 	const UAuraAttributeSet* AuraAttributeSet = CastChecked<UAuraAttributeSet>(AttributeSet);
 
+	//When an attribute is changed, ASC broadcasts a delegate
 	//Callbacks are bound to delegates on the ASC
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AuraAttributeSet->GetHealthAttribute()).AddUObject(this, &UOverlayWidgetController::HealthChanged);
 
