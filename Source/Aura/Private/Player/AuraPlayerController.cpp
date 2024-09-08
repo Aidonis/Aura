@@ -1,4 +1,4 @@
-// Copyright Pixel Grimoire
+// Copyright Pixel Grimre
 
 #include "Player/AuraPlayerController.h"
 #include "EnhancedInputSubsystems.h"
@@ -10,9 +10,9 @@ AAuraPlayerController::AAuraPlayerController()
 	bReplicates = true;
 }
 
-void AAuraPlayerController::PlayerTick(float deltaTime)
+void AAuraPlayerController::PlayerTick(float DeltaTime)
 {
-	Super::PlayerTick(deltaTime);
+	Super::PlayerTick(DeltaTime);
 
 	CursorTrace();
 }
