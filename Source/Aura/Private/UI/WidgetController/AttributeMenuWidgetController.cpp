@@ -15,8 +15,7 @@ void UAttributeMenuWidgetController::BroadcastInitialValues()
 	for(auto& Pair : AS->TagsToAttributes)
 	{
 		FAuraAttributeInfo Info = AttributeInfo->FindAttributeInfoForTag(Pair.Key);
-		FGameplayAttribute Attr = Pair.Value.Execute(); 
-		Info.AttributeValue = Attr.GetNumericValue(AS);
+		Info.AttributeValue = Pair.Value().GetNumericValue(AS);
 		AttributeInfoDelegate.Broadcast(Info);
 	}
 }
