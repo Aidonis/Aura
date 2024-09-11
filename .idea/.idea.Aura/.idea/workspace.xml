@@ -16,11 +16,9 @@
       <change beforePath="$PROJECT_DIR$/Content/Blueprints/UI/AttributeMenu/WBP_AttributeMenu.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Blueprints/UI/AttributeMenu/WBP_AttributeMenu.uasset" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Content/Blueprints/UI/AttributeMenu/WBP_TextValueButtonRow.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Blueprints/UI/AttributeMenu/WBP_TextValueButtonRow.uasset" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Content/Blueprints/UI/AttributeMenu/WBP_TextValueRow.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Blueprints/UI/AttributeMenu/WBP_TextValueRow.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/Blueprints/UI/WidgetController/BP_AttributeMenuWidgetController.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Blueprints/UI/WidgetController/BP_AttributeMenuWidgetController.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/Aura/Private/AbilitySystem/AuraAttributeSet.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Aura/Private/AbilitySystem/AuraAttributeSet.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Source/Aura/Private/UI/WidgetController/AttributeMenuWidgetController.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Aura/Private/UI/WidgetController/AttributeMenuWidgetController.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/Aura/Public/AbilitySystem/Data/AttributeInfo.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Aura/Public/AbilitySystem/Data/AttributeInfo.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/Aura/Public/UI/Widget/AuraWidgetController.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Aura/Public/UI/Widget/AuraWidgetController.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/Aura/Public/UI/WidgetController/AttributeMenuWidgetController.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Aura/Public/UI/WidgetController/AttributeMenuWidgetController.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/Aura/Public/AbilitySystem/AuraAttributeSet.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Aura/Public/AbilitySystem/AuraAttributeSet.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -558,7 +556,7 @@
       <workItem from="1725987865903" duration="9603000" />
       <workItem from="1726007062453" duration="116000" />
       <workItem from="1726007233301" duration="359000" />
-      <workItem from="1726007638133" duration="13765000" />
+      <workItem from="1726007638133" duration="16842000" />
     </task>
     <servers />
   </component>
