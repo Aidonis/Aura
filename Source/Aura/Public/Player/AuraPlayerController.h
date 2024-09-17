@@ -10,8 +10,8 @@
 class UAuraInputConfig;
 class UInputMappingContext;
 class UInputAction;
-
 class IEnemyInterface;
+class UAuraAbilitySystemComponent;
 
 struct FInputActionValue;
 
@@ -44,7 +44,6 @@ private:
 	void Move(const FInputActionValue& InputActionValue);
 
 	void CursorTrace();
-
 	TScriptInterface<IEnemyInterface> LastActor;
 	TScriptInterface<IEnemyInterface> ThisActor;
 
@@ -54,4 +53,9 @@ private:
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	TObjectPtr<UAuraInputConfig> InputConfig;
+
+	UPROPERTY()
+	TObjectPtr<UAuraAbilitySystemComponent> AuraAbilitySystemComponent;
+
+	UAuraAbilitySystemComponent* GetASC();
 };
