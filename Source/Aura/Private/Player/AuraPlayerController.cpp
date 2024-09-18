@@ -5,6 +5,8 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AuraGameplayTags.h"
 #include "EnhancedInputSubsystems.h"
+#include "NavigationPath.h"
+#include "NavigationSystem.h"
 #include "AbilitySystem/AuraAbilitySystemComponent.h"
 #include "Input/AuraInputComponent.h"
 #include "Interaction/EnemyInterface.h"
@@ -22,6 +24,26 @@ void AAuraPlayerController::PlayerTick(float DeltaTime)
 	Super::PlayerTick(DeltaTime);
 
 	CursorTrace();
+	AutoRun();
+}
+
+void AAuraPlayerController::AutoRun()
+{
+	if(!bAutoRunning){ return; }
+	if(APawn* ControlledPawn = GetPawn())
+	{
+		// Location on Spline closest to the controlled pawn
+		const FVector LocationOnSpline = Spline->FindLocationClosestToWorldLocation(ControlledPawn->GetActorLocation(), ESplineCoordinateSpace::World);
+		const FVector Direction = Spline->FindDirectionClosestToWorldLocation(LocationOnSpline, ESplineCoordinateSpace::World);
+
+		ControlledPawn->AddMovementInput(Direction);
+
+		const float DistanceToDestination = (LocationOnSpline - CachedDestination).Length();
+		if(DistanceToDestination <= AutoRunAcceptanceRadius)
+		{
+			bAutoRunning = false;
+		}
+	}
 }
 
 void AAuraPlayerController::BeginPlay()
@@ -67,6 +89,7 @@ void AAuraPlayerController::Move(const FInputActionValue& InputActionValue)
 
 	if (APawn* ControlledPawn = GetPawn<APawn>())
 	{
+		bAutoRunning = false;
 		ControlledPawn->AddMovementInput(ForwardDirection, InputAxisVector.Y);
 		ControlledPawn->AddMovementInput(RightDirection, InputAxisVector.X);
 	}
@@ -74,8 +97,6 @@ void AAuraPlayerController::Move(const FInputActionValue& InputActionValue)
 
 void AAuraPlayerController::CursorTrace()
 {
-	FHitResult CursorHit;
-
 	GetHitResultUnderCursor(ECC_Visibility, false, CursorHit);
 
 	if (!CursorHit.bBlockingHit)
@@ -86,62 +107,15 @@ void AAuraPlayerController::CursorTrace()
 	LastActor = ThisActor;
 	ThisActor = CursorHit.GetActor();
 
-	/*
-	* Line trace from cursor:
-	* A. LastActor is null && ThisActor is null
-	*	- Do nothing
-	* B. LastActor is null && ThisActor is valid
-	*	- Highlight ThisActor
-	* C. LastActor is valid && ThisActor is null
-	*	- UnHighlight LastActor
-	* D. LastActor is valid && ThisActor is valid
-	*	- UnHighlight LastActor
-	*	- Highlight ThisActor
-	* E. Both actors valid and the same actor
-	*	- Do nothing
-	*/
-
-	if (LastActor == nullptr)
+	if(LastActor != ThisActor)
 	{
-		if (ThisActor != nullptr)
-		{
-			// Case B
-			ThisActor->HighlightActor();
-		}
-		else
-		{
-			// Case A - do nothhing
-		}
-	}
-	else
-	{
-		//Last Actor is valid
-		if (ThisActor == nullptr)
-		{
-			//Case C
-			LastActor->UnHighlightActor();
-		}
-		else
-		{
-			//Both Actors are valid
-			if (LastActor != ThisActor)
-			{
-				//Case D
-				LastActor->UnHighlightActor();
-				ThisActor->HighlightActor();
-			}
-			else
-			{
-				//Case E - do nothing
-			}
-		}
+		if(LastActor) { LastActor->UnHighlightActor(); }
+		if(ThisActor) { ThisActor->HighlightActor(); }
 	}
 }
 
 void AAuraPlayerController::AbilityInputTagPressed(const FGameplayTag InputTag)
 {
-	GEngine->AddOnScreenDebugMessage(1, 3.f, FColor::Red, *InputTag.ToString());
-	
 	// Left Mouse Button Down
 	if(InputTag.MatchesTagExact(FAuraGameplayTags::Get().InputTag_LMB))
 	{
@@ -153,20 +127,50 @@ void AAuraPlayerController::AbilityInputTagPressed(const FGameplayTag InputTag)
 
 void AAuraPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 {
-	GEngine->AddOnScreenDebugMessage(1, 3.f, FColor::Green, *InputTag.ToString());
-	
-	if(GetASC() == nullptr)
+	// Not Left Mouse Button Held
+	if(!InputTag.MatchesTagExact(FAuraGameplayTags::Get().InputTag_LMB))
 	{
+		if(GetASC())
+		{
+			GetASC()->AbilityInputTagReleased(InputTag);	
+		}
 		return;
 	}
-	GetASC()->AbilityInputTagReleased(InputTag);
+
+	if(bTargeting)
+	{
+		if(GetASC())
+		{
+			GetASC()->AbilityInputTagReleased(InputTag);	
+		}
+	}
+	else
+	{
+		const APawn* ControlledPawn = GetPawn();
+		if(FollowTime <= ShortPressThreshold && ControlledPawn)
+		{
+			if(UNavigationPath* NavPath =  UNavigationSystemV1::FindPathToLocationSynchronously(
+				this,
+				ControlledPawn->GetActorLocation(),
+				CachedDestination))
+			{
+				Spline->ClearSplinePoints();
+				for(const FVector& PointLoc : NavPath->PathPoints)
+				{
+					Spline->AddSplinePoint(PointLoc, ESplineCoordinateSpace::World);
+				}
+				CachedDestination = NavPath->PathPoints[NavPath->PathPoints.Num() - 1];
+				bAutoRunning = true;
+			}
+		}
+		FollowTime = 0.f;
+		bTargeting = false;
+	}
 	
 }
 
 void AAuraPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
 {
-	GEngine->AddOnScreenDebugMessage(1, 3.f, FColor::Blue, *InputTag.ToString());
-	
 	// Not Left Mouse Button Held
 	if(!InputTag.MatchesTagExact(FAuraGameplayTags::Get().InputTag_LMB))
 	{
@@ -189,9 +193,9 @@ void AAuraPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
 	{
 		FollowTime += GetWorld()->DeltaTimeSeconds;
 
-		if(FHitResult Hit; GetHitResultUnderCursor(ECC_Visibility, false, Hit))
+		if(CursorHit.bBlockingHit)
 		{
-			CachedDestination = Hit.ImpactPoint;
+			CachedDestination = CursorHit.ImpactPoint;
 		}
 
 		if(APawn* ControlledPawn = GetPawn())
